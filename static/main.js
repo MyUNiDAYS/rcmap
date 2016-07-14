@@ -22,7 +22,6 @@ var country_name_map = {
 
 
 var world_map;
-var open_con = []
 
 var highlight_country = function(country_name) {
     return d3.select('path[data-country-name="' + country_name + '"]')
@@ -75,20 +74,20 @@ var addBubbles = function(bubbles) {
         .each(function(d){
             var x = projection([d.longitude, d.latitude])[0];
             var y = projection([d.longitude, d.latitude])[1];
-            var div = $('<div />')
-                .css({
-                    position:'absolute',
-                    'top': y + 10,
-                    'left': x + 10,
-                    'color': self.getFillColor(d)
-                })
-                .addClass('popup-box')
-                .animate({opacity: 0}, 4000, null, function() {
-                    this.remove();
-                });
+            var div = $('<div class="message" />').css({
+                position:'absolute',
+                'top': y,
+                'left': x - 50,
+                'color': self.getFillColor(d)
+            });
 
             div.html(d.page_title);
             $('#map').append(div);
+            div.width()
+            div.addClass('hide');
+            window.setTimeout(function(){
+                div.remove();
+            }, 2000);
         });
 };
 
@@ -155,11 +154,6 @@ wikipediaSocket.init = function(ws_url, lid) {
         };
     
     };
-    this.close = function() {
-        if (this.connection) {
-            this.connection.close();
-        }
-    };
 };
 
 $(document).ready(function() {
@@ -183,6 +177,7 @@ $(document).ready(function() {
         }
     });
     
+    // Fake URL to wikipedia
     var socket = new wikipediaSocket.init('ws://wikimon.hatnote.com:9000', 'en');
     if (!socket.connection || socket.connection.readyState == 3)
         socket.connect();

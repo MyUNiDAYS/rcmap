@@ -8,11 +8,20 @@ body
 	background: #172434;
 }
 
-.popup-box 
+.message
 {
 	font-size: 20px;
 	color: #8FC2ED;
     font-family: arial;
+    transition:	transform ease-out 2000ms,
+               	opacity ease-out 2000ms;
+
+}
+
+.message.hide
+{
+    transform: translate(0, -50px);
+    opacity: 0.5;
 }
 
 #map {
