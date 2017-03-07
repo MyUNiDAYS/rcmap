@@ -1,0 +1,2 @@
+var lol = function() {
+}
