@@ -91,11 +91,11 @@ var addBubbles = function(bubbles) {
         });
 };
 
-function wikipediaSocket() {
+function socketServerConnection() {
 
 }
 
-wikipediaSocket.init = function(ws_url, lid) {
+socketServerConnection.init = function(ws_url, lid) {
     this.connect = function() {
         
         var connection = new ReconnectingWebSocket(ws_url);
@@ -104,27 +104,6 @@ wikipediaSocket.init = function(ws_url, lid) {
         connection.onmessage = function(resp) {
            
             var data = JSON.parse(resp.data);
-
-            // -----------------------------------
-            // Begin fake data from wikipedia
-            if (!data.is_anon || data.ns !== 'Main')
-                return;
-                
-            if (!data.geo_ip)
-                return;
-
-            var fillKey;
-            var message;
-            if (data.change_size > 0) {
-                fillKey = 'verification';
-                message = 'Verification'
-            } else {
-                fillKey = 'redemption';
-                message = 'Redemption $' + (Math.round((Math.random() * (200 - 50) + 50) * 100) / 100);
-            }
-            // End fake data
-            // -----------------------------------
-
             
             world_map.options.bubbles = world_map.options.bubbles.slice(-20);
                         
@@ -132,25 +111,26 @@ wikipediaSocket.init = function(ws_url, lid) {
                     opacity: 0,
                     radius: 10
                 },
-                40000,
+                2000,
                 null,
                 function(){
                     this.remove();
                 }
             );
+
             
             world_map.addBubbles([{
                 radius: 4,
-                latitude: data.geo_ip.latitude,
-                longitude: data.geo_ip.longitude,
-                page_title: message,
-                fillKey: fillKey
+                latitude: data.geoIpResult.latitude,
+                longitude: data.geoIpResult.longitude,
+                page_title: "yay",
+                fillKey: "yay"
             }]);
 
-            var country_hl = highlight_country(data.geo_ip.country_name);
+            var country_hl = highlight_country(data.geoIpResult.country_name);
 
             if (!country_hl[0][0])
-                highlight_country(country_name_map[data.geo_ip.country_name]);
+                highlight_country(country_name_map[data.geoIpResult.country_name]);
         };
     
     };
@@ -172,13 +152,12 @@ $(document).ready(function() {
         },
         fills: {
             'defaultFill': '#28303D', // map country fill 
-            'verification': '#1DD577',
-            'redemption': '#FF0C3E'
+            'yay': '#FF0C3E'
         }
     });
     
     // Fake URL to wikipedia
-    var socket = new wikipediaSocket.init('ws://wikimon.hatnote.com:9000', 'en');
+    var socket = new socketServerConnection.init('ws://127.0.0.1:1212/');
     if (!socket.connection || socket.connection.readyState == 3)
         socket.connect();
     
